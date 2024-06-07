@@ -15,35 +15,56 @@ struct Edge
   Edge(int x, int y, int c) : x(x), y(y), c(c) {}
 };
 
-int representantive(int x, vector<int> &parent)
+class SpanningTree
 {
-  if (parent[x] == -1)
-    return x;
-  int repre = representantive(parent[x], parent);
-  parent[x] = repre;
-  return repre;
-}
+public:
+  int n;
+  vector<Edge> G;
+  vector<int> parent;
+  // Constructor to initialize the graph and parent vector
+  SpanningTree(int n, vector<Edge> G) : n(n), G(G), parent(n, -1) {}
 
-int spanning_tree(int n, const vector<Edge> &G)
-{
-  int savings = 0;
-  vector<int> parent(n, -1);
-  for (int i = 0; n > 1 and i < G.size(); ++i)
+  // Method to find the representative of a set
+  int findRepresentative(int x)
   {
-    int rx = representantive(G[i].x, parent);
-    int ry = representantive(G[i].y, parent);
-    if (rx != ry)
+    if (parent[x] == -1)
     {
-      parent[ry] = rx;
-      // --n;
+      return x;
     }
-    else
+    // parent[x] = findRepresentative(parent[x]); // Path compression
+    // return parent[x];
+    return findRepresentative(parent[x]);
+  }
+
+  // Method to compute the savings in the spanning tree
+  int computeSavings()
+  {
+    int savings = 0;
+    int i = 0;
+    int added = 0;
+    while (added < n - 1 and i < G.size())
+    {
+      int rx = findRepresentative(G[i].x);
+      int ry = findRepresentative(G[i].y);
+      if (rx != ry)
+      {
+        parent[ry] = rx; // Union
+        ++added;
+      }
+      else
+      {
+        savings += G[i].c;
+      }
+      ++i;
+    }
+    while (i < G.size())
     {
       savings += G[i].c;
+      ++i;
     }
+    return savings;
   }
-  return savings;
-}
+};
 
 int main()
 {
@@ -83,7 +104,9 @@ int main()
     sort(G.begin(), G.end(), [](const Edge &a, const Edge &b)
          { return a.c < b.c; });
 
-    int savings = spanning_tree(n, G);
+    SpanningTree *spanning_tree = new SpanningTree(n, G);
+    int savings = spanning_tree->computeSavings();
     cout << savings << endl;
+    delete spanning_tree;
   }
 }
