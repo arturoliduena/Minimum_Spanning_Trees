@@ -68,36 +68,23 @@ public:
 
 int main()
 {
-  string line;
-
-  // Read input until EOF
-  while (getline(cin, line))
+  while (true)
   {
-    istringstream iss(line);
-
-    // Read the first two numbers in each line
+    // Read the number of towns (vertices) n and the number of roads (edges) m
     int n, m;
-    iss >> n >> m;
+    cin >> n >> m;
+
+    if (cin.peek() == EOF)
+      break; // after some cin to skip trailing whitespace
 
     vector<Edge> G(m);
-    int count = 0;
 
-    // Read remaining triplets
-    int x, y, c;
-    while (count < m && (iss >> x >> y >> c))
+    // Read m triples x y c, indicating that the maintenance cost of the road between x and y is c
+    for (int i = 0; i < m; i++)
     {
+      int x, y, c;
+      cin >> x >> y >> c;
       G.push_back(Edge(x, y, c));
-      count++;
-    }
-
-    while (count < m && getline(cin, line))
-    {
-      istringstream next_iss(line);
-      while (count < m && (next_iss >> x >> y >> c))
-      {
-        G.push_back(Edge(x, y, c));
-        count++;
-      }
     }
 
     // Sorting the G by cost
